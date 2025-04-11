@@ -1,0 +1,42 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model answer_votes {
+  id        Int      @id @default(autoincrement())
+  answer_id Int?
+  vote      Int?
+  answers   answers? @relation(fields: [answer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model answers {
+  id           Int            @id @default(autoincrement())
+  question_id  Int?
+  content      String?
+  answer_votes answer_votes[]
+  questions    questions?     @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model question_votes {
+  id          Int        @id @default(autoincrement())
+  question_id Int?
+  vote        Int?
+  questions   questions? @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model questions {
+  id             Int              @id @default(autoincrement())
+  title          String           @db.VarChar(255)
+  description    String?
+  category       String?          @db.VarChar(255)
+  answers        answers[]
+  question_votes question_votes[]
+}
