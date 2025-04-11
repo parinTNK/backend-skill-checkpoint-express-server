@@ -120,12 +120,7 @@ const searchQuestions = async (req, res) => {
 const createAnswer = async (req, res) => {
   const { content } = req.body;
 
-  if (!content || content.trim() === "") {
-    return res.status(400).json({ message: "Answer content is required." });
-  }
-
   try {
-    // ใช้ questionId จาก req.validatedId ที่ middleware ได้ตรวจสอบแล้ว
     const answer = await prisma.answers.create({
       data: {
         content,

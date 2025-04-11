@@ -111,7 +111,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Answer'
     post:
-      summary: Create an answer for a question
+      summary: Create a new answer
       parameters:
         - name: questionId
           in: path
@@ -123,10 +123,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AnswerInput'
-      responses:
-        '201':
-          description: Answer created successfully
+              type: object
+              properties:
+                content:
+                  type: string
+                  maxLength: 300
+                  description: The answer content (max 300 characters)
+              required:
+                - content
     delete:
       summary: Delete all answers for a question
       parameters:
