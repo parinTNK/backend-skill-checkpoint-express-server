@@ -13,19 +13,8 @@ const getAllQuestions = async (req, res) => {
 };
 
 const getQuestionById = async (req, res) => {
-  const { questionsId } = req.params;
-  try {
-    const question = await prisma.questions.findUnique({
-      where: { id: Number(questionsId) },
-    });
-    if (!question) {
-      return res.status(404).json({ message: "Question not found." });
-    }
-    res.status(200).json(question);
-  } catch (error) {
-    console.error("Error fetching question:", error);
-    res.status(500).json({ message: "Unable to fetch questions." });
-  }
+  // ไม่ต้องตรวจสอบว่าคำถามมีอยู่จริงอีก เพราะ middleware ได้ทำไปแล้ว
+  res.status(200).json(req.question);
 };
 
 const createQuestion = async (req, res) => {
@@ -129,7 +118,6 @@ const searchQuestions = async (req, res) => {
 };
 
 const createAnswer = async (req, res) => {
-  const { questionId } = req.params;
   const { content } = req.body;
 
   if (!content || content.trim() === "") {
@@ -137,18 +125,11 @@ const createAnswer = async (req, res) => {
   }
 
   try {
-    const question = await prisma.questions.findUnique({
-      where: { id: Number(questionId) },
-    });
-
-    if (!question) {
-      return res.status(404).json({ message: "Question not found." });
-    }
-
+    // ใช้ questionId จาก req.validatedId ที่ middleware ได้ตรวจสอบแล้ว
     const answer = await prisma.answers.create({
       data: {
         content,
-        question_id: Number(questionId),
+        question_id: req.validatedId,
       },
     });
 
@@ -211,28 +192,12 @@ const deleteAnswersByQuestionId = async (req, res) => {
 };
 
 const voteQuestion = async (req, res) => {
-  const { questionId } = req.params;
-  const { vote } = req.body;
-
-  if (vote !== 1 && vote !== -1) {
-    return res
-      .status(400)
-      .json({ message: "Vote value must be either 1 or -1." });
-  }
-
+  // ใช้ questionId และ vote จาก middleware
   try {
-    const question = await prisma.questions.findUnique({
-      where: { id: Number(questionId) },
-    });
-
-    if (!question) {
-      return res.status(404).json({ message: "Question not found." });
-    }
-
     await prisma.question_votes.create({
       data: {
-        question_id: Number(questionId),
-        vote: vote,
+        question_id: req.validatedId,
+        vote: req.body.vote,
       },
     });
 
