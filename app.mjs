@@ -1,16 +1,17 @@
 import express from "express";
 import connectionPool from "./utils/db.mjs";
 import dotenv from "dotenv";
+import router from "./routes/questionsRoutes.mjs";
+import morgan from "morgan";
+
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
+app.use(morgan("dev"));
 
-app.get("/test", (req, res) => {
-  return res.json("Server API is working 🚀");
-});
 
 (async () => {
   try {
@@ -22,6 +23,8 @@ app.get("/test", (req, res) => {
   }
 }
 )();
+
+app.use("/", router);
 
 app.listen(port, () => {
   console.log(`Server is running at ${port}`);
