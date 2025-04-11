@@ -1,0 +1,218 @@
+openapi: 3.0.0
+info:
+  title: Q&A Platform API
+  description: API documentation for the Q&A platform
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000
+    description: Local server
+paths:
+  /questions:
+    get:
+      summary: Get all questions
+      responses:
+        '200':
+          description: A list of questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+    post:
+      summary: Create a new question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionInput'
+      responses:
+        '201':
+          description: Question created successfully
+  /questions/search:
+    get:
+      summary: Search questions by category or title
+      parameters:
+        - name: category
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of matching questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+  /questions/{questionsId}:
+    get:
+      summary: Get a question by ID
+      parameters:
+        - name: questionsId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A single question
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+    put:
+      summary: Update a question
+      parameters:
+        - name: questionsId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionInput'
+      responses:
+        '200':
+          description: Question updated successfully
+    delete:
+      summary: Delete a question
+      parameters:
+        - name: questionsId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Question deleted successfully
+  /questions/{questionId}/answers:
+    get:
+      summary: Get all answers for a question
+      parameters:
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of answers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Answer'
+    post:
+      summary: Create an answer for a question
+      parameters:
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswerInput'
+      responses:
+        '201':
+          description: Answer created successfully
+    delete:
+      summary: Delete all answers for a question
+      parameters:
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: All answers deleted successfully
+  /questions/{questionId}/vote:
+    post:
+      summary: Vote on a question
+      parameters:
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoteInput'
+      responses:
+        '200':
+          description: Vote recorded successfully
+  /answers/{answerId}/vote:
+    post:
+      summary: Vote on an answer
+      parameters:
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoteInput'
+      responses:
+        '200':
+          description: Vote recorded successfully
+components:
+  schemas:
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+    QuestionInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+    Answer:
+      type: object
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+        question_id:
+          type: integer
+    AnswerInput:
+      type: object
+      properties:
+        content:
+          type: string
+    VoteInput:
+      type: object
+      properties:
+        vote:
+          type: integer
+          enum: [1, -1]
