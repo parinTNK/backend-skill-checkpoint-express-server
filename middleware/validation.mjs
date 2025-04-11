@@ -1,31 +1,32 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-
 export const validateId = (idName) => {
   return (req, res, next) => {
     const id = Number(req.params[idName]);
     if (isNaN(id)) {
       return res.status(400).json({ message: `Invalid ${idName} provided.` });
     }
-    req.validatedId = id; 
+    req.validatedId = id;
     next();
   };
 };
 
-
 export const checkQuestionExists = async (req, res, next) => {
   try {
-    const id = req.validatedId || Number(req.params.questionsId) || Number(req.params.questionId);
+    const id =
+      req.validatedId ||
+      Number(req.params.questionsId) ||
+      Number(req.params.questionId);
     const question = await prisma.questions.findUnique({
-      where: { id }
+      where: { id },
     });
-    
+
     if (!question) {
       return res.status(404).json({ message: "Question not found." });
     }
-    
-    req.question = question; 
+
+    req.question = question;
     next();
   } catch (error) {
     console.error("Error checking question:", error);
@@ -33,18 +34,17 @@ export const checkQuestionExists = async (req, res, next) => {
   }
 };
 
-
 export const checkAnswerExists = async (req, res, next) => {
   try {
     const id = Number(req.params.answerId);
     const answer = await prisma.answers.findUnique({
-      where: { id }
+      where: { id },
     });
-    
+
     if (!answer) {
       return res.status(404).json({ message: "Answer not found." });
     }
-    
+
     req.answer = answer;
     next();
   } catch (error) {
@@ -53,13 +53,31 @@ export const checkAnswerExists = async (req, res, next) => {
   }
 };
 
-
 export const validateVote = (req, res, next) => {
   const { vote } = req.body;
-  
+
   if (vote !== 1 && vote !== -1) {
-    return res.status(400).json({ message: "Vote value must be either 1 or -1." });
+    return res
+      .status(400)
+      .json({ message: "Vote value must be either 1 or -1." });
   }
-  
+
+  next();
+};
+
+export const validateAnswerContent = (req, res, next) => {
+  const { content } = req.body;
+
+  if (!content || content.trim() === "") {
+    return res.status(400).json({ message: "Answer content is required." });
+  }
+
+  if (content.length > 300) {
+    return res.status(400).json({
+      message: "Answer content must not exceed 300 characters.",
+      currentLength: content.length,
+    });
+  }
+
   next();
 };

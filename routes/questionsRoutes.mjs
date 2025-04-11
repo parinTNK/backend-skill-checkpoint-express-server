@@ -16,7 +16,8 @@ import {
     validateId, 
     checkQuestionExists, 
     checkAnswerExists, 
-    validateVote 
+    validateVote,
+    validateAnswerContent
 } from '../middleware/validation.mjs';
 
 const router = express.Router();
@@ -36,7 +37,7 @@ router.route('/questions/:questionsId')
 
 router.route('/questions/:questionId/answers')
     .get(validateId('questionId'), checkQuestionExists, getAnswersByQuestionId)
-    .post(validateId('questionId'), checkQuestionExists, createAnswer)
+    .post(validateId('questionId'), checkQuestionExists, validateAnswerContent, createAnswer)
     .delete(validateId('questionId'), checkQuestionExists, deleteAnswersByQuestionId);
 
 
